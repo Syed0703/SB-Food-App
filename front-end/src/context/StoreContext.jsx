@@ -35,9 +35,9 @@ const StoreContextProvider = (props) => {
         {
             if(cartItems[item]>0){
                 let itemInfo = food_list.find((product)=>product._id === item)
-                totalAmount += itemInfo.price*cartItems[item];
+                // Using optional chaining for robustness
+                totalAmount += itemInfo?.price * cartItems[item];
             }
-            
         }
         return totalAmount;
     }
@@ -49,10 +49,11 @@ const StoreContextProvider = (props) => {
 
     const localCartData = async (token) => {
         const response = await axios.post(url+"/api/cart/get",{},{headers:{token}})
-        setCartItems(response.data.cartData);
+        // 🎯 CRITICAL FIX: Use || {} to ensure cartData is always an object
+        setCartItems(response.data.cartData || {}); 
     }
     
-    useEffect(()=>{     
+    useEffect(()=>{ 
         async function loadData() {
             await fetchFoodList();
             if (localStorage.getItem("token")) {
@@ -78,8 +79,8 @@ const StoreContextProvider = (props) => {
     return (
         <StoreContext.Provider value={contextValue}>
             {props.children}
-        </StoreContext.Provider>  
+        </StoreContext.Provider> 
     )
 }
 
-export default StoreContextProvider
+export default StoreContextProvider;
